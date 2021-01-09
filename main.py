@@ -7,6 +7,11 @@ from tile import Tile, TILE_TYPE
 from camera import Camera
 from popup import Popup
 
+from state.default_state import state as default_state
+from state import reducer as state_reducer
+
+from state.events import create_select_tile_event, create_deselect_tile_event
+
 map = [
     [0,0,0,0,0],
     [0,1,1,0,0],
@@ -35,9 +40,10 @@ class Game():
         self.resources = self.load_resources()
         self.all = self.init_game_resources(self.resources)
 
+        self.state = state_reducer(default_state, None)
+        self.popup = Popup(self.screen, 'dummy', 'content', onClose=self.onPopupClose)
+
         # pygame.display.set_icon(icon_image)
-        # background.blit(background_image, (0, 0))
-        self.camera = Camera(100, 100)
 
     def init_screen(self):
         winstyle = 0
@@ -58,6 +64,7 @@ class Game():
 
     def init_game_resources(self, resources):
         self.tiles = pygame.sprite.Group()
+        self.overlays = pygame.sprite.Group()
         all = pygame.sprite.RenderUpdates()
 
         # set up containers for collision detection etc
@@ -67,6 +74,8 @@ class Game():
             resources["images"]["sand"]
         ]
         Tile.containers = all, self.tiles
+
+        Popup.containers = self.overlays
 
         for y in range(100):
             for x in range(100):
@@ -85,48 +94,40 @@ class Game():
         }
 
     def game_loop(self):
-        selected_tile = None
-        popup = None
+        while not self.state['system']['is_quitting']:
+            prev_state = self.state.copy()
+            self.state = state_reducer(self.state, pygame.event.poll())
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return
-                    if event.key == pygame.K_f:
-                        pygame.display.toggle_fullscreen()
+            if pygame.mouse.get_pressed()[0] and self.state.get('selected_tile'):
+                create_deselect_tile_event()
 
-            keys = pygame.key.get_pressed()
-            camera_dx = (keys[pygame.K_LEFT] - keys[pygame.K_RIGHT]) * CAMERA_SPEED
-            camera_dy = (keys[pygame.K_UP] - keys[pygame.K_DOWN]) * CAMERA_SPEED
+            self.all.update(self.state)
+            self.overlays.update(self.state)
 
-            relative_cursor_position = self.camera.apply_to_point(pygame.mouse.get_pos())
-            mouse_grid_ref = Tile.convert_point_to_grid_ref(relative_cursor_position)
+            self.draw(self.state, prev_state)
 
-            if pygame.mouse.get_pressed()[0]:
-                selected_tile = None
+    def draw(self, state, prev_state):
+        if state['system']['is_fullscreen'] != prev_state['system']['is_fullscreen']:
+            pygame.display.toggle_fullscreen()
 
-            for tile in self.tiles:
-                tile.is_hovered = tile.check_hover(mouse_grid_ref)
-                if pygame.mouse.get_pressed()[0] and tile.is_hovered:
-                    selected_tile = tile
+        self.all.clear(self.screen, self.background)
+        self.overlays.clear(self.screen, self.background)
 
-            self.all.clear(self.screen, self.background)
-            self.all.update()
-            self.camera.update((camera_dx, camera_dy))
+        self.background.fill((0,0,0))
+        self.screen.blit(self.background, (0, 0))
 
-            for sprite in self.all:
-                self.screen.blit(sprite.image, self.camera.apply(sprite))
+        for sprite in self.all:
+            self.screen.blit(sprite.image, self.state.get('camera').apply(sprite))
 
-            if selected_tile:
-                popup = Popup(self.screen, 'dummy', 'content')
+        self.overlays.draw(self.screen)
 
+        pygame.display.flip()
 
-            pygame.display.flip()
+        self.clock.tick(40)
 
-            self.clock.tick(40)
+    def onPopupClose(self):
+        if self.popup:
+            self.popup.kill()
 
 if __name__ == "__main__":
     game = Game()

@@ -9,7 +9,7 @@ class TILE_TYPE(Enum):
 class Tile(pygame.sprite.Sprite):
     images = []
 
-    def __init__(self, type, position, map_position):
+    def __init__(self, type, position, map_position, onClick=None):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.type = type
         self.default_image = self.images[self.type.value]
@@ -18,17 +18,17 @@ class Tile(pygame.sprite.Sprite):
         self.image = self.default_image
         self.rect = self.image.get_rect(topleft=position)
         self.position = position
-        self.is_hovered = False
         self.map_position = map_position
+        self.onClick = onClick
 
-    def update(self):
-        if self.is_hovered:
+    def update(self, state):
+        if self.check_hover(state.get('camera').apply_to_point(state['system']['mouse_position'])):
             self.image = self.hover_image
         else:
             self.image = self.default_image
 
     def check_hover(self, point):
-        return point == self.map_position
+        return Tile.convert_point_to_grid_ref(point) == self.map_position
 
     @classmethod
     def create_position(cls, x, y, x_offset, y_offset):
