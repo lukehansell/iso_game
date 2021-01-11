@@ -9,6 +9,6 @@ state = {
     "camera": Camera(100, 100),
     "selected_tile": None,
     "ui": {
-        "popup": False
+        "popup": None
     }
 }

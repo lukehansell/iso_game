@@ -3,9 +3,24 @@ from camera import Camera
 CAMERA_SPEED = 5
 
 def reducer(state, action):
-    keys = py.key.get_pressed()
-    dx = (keys[py.K_LEFT] - keys[py.K_RIGHT]) * CAMERA_SPEED
-    dy = (keys[py.K_UP] - keys[py.K_DOWN]) * CAMERA_SPEED
+    if action.type == py.KEYDOWN:
+        if action.key == py.K_LEFT:
+            state.dx += CAMERA_SPEED
+        if action.key == py.K_RIGHT:
+            state.dx += -CAMERA_SPEED
+        if action.key == py.K_UP:
+            state.dy += CAMERA_SPEED
+        if action.key == py.K_DOWN:
+            state.dy += -CAMERA_SPEED
 
-    state.update((dx, dy))
+    if action.type == py.KEYUP:
+        if action.key == py.K_LEFT:
+            state.dx -= CAMERA_SPEED
+        if action.key == py.K_RIGHT:
+            state.dx -= -CAMERA_SPEED
+        if action.key == py.K_UP:
+            state.dy -= CAMERA_SPEED
+        if action.key == py.K_DOWN:
+            state.dy -= -CAMERA_SPEED
+
     return state

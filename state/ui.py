@@ -1,14 +1,21 @@
-from .events import DISPLAY_SELECTED_TILE_POPUP, HIDE_SELECTED_TILE_POPUP
+import pygame as py
+from .events import DISPLAY_POPUP, HIDE_POPUP
 
 def reducer(state, action):
-    if action.type == DISPLAY_SELECTED_TILE_POPUP:
+    if action.type == py.MOUSEBUTTONDOWN:
+        pass
+
+    if action.type == DISPLAY_POPUP:
         return {
-            "popup": True
+            "popup": {
+                "title": action.title,
+                "content": action.content
+            }
         }
 
-    if action.type == HIDE_SELECTED_TILE_POPUP:
+    if action.type == HIDE_POPUP:
         return {
-            "popup": False
+            "popup": None
         }
 
     return state
