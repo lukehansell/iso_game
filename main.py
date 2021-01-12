@@ -102,6 +102,9 @@ class Game():
 
     def game_loop(self):
         tick = 0
+        camera = self.state.get('camera')
+        camera.camera.left = SCREENRECT.width/2
+        camera.camera.centery = SCREENRECT.height/2 - (64 * len(level))
         while not self.state['system']['is_quitting']:
             prev_state = self.state.copy()
             for event in pygame.event.get():
