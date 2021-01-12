@@ -11,6 +11,12 @@ HIDE_POPUP = custom_type()
 
 TOGGLE_FULLSCREEN = custom_type()
 
+TOGGLE_BUILD_MODE = custom_type()
+
+GAME_TICK = custom_type()
+
+PURCHASE = custom_type()
+
 def create_select_tile_event(tile):
     print('dispatching SELECT_TILE')
     post(Event(SELECT_TILE, { "tile": tile }))
@@ -40,3 +46,15 @@ def create_display_popup(title, content):
 def create_hide_popup():
     print('dispatching HIDE_POPUP')
     post(Event(HIDE_POPUP))
+
+def create_toggle_build_mode(mode):
+    print('dispatching TOGGLE_BUILD MODE')
+    post(Event(TOGGLE_BUILD_MODE, { "mode": mode }))
+
+def create_game_tick(tiles):
+    print('dispatching GAME_TICK')
+    post(Event(GAME_TICK, { 'tiles': tiles}))
+
+def create_purchase(cost):
+    print('dispatching PURCHASE')
+    post(Event(PURCHASE, { 'cost': cost }))
