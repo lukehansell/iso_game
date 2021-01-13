@@ -3,11 +3,11 @@ from random import choice
 from math import floor
 import pygame
 
-from tile import Tile, TILE_TYPE
 from camera import Camera
-from popup import Popup
-from build_menu import BuildMenu
-from text import Text
+
+from sprites.tile import Tile, TILE_TYPE
+from sprites.popup import Popup
+from sprites.build_menu import BuildMenu
 
 from state.build_mode import BUILD_MODES
 
@@ -15,6 +15,7 @@ from state.default_state import state as default_state
 from state import reducer as state_reducer
 
 from state.events import create_select_tile_event, create_deselect_tile_event, create_display_popup, create_hide_popup, create_toggle_build_mode, create_game_tick
+from lib import grid_ref_to_iso, iso_to_grid_ref
 
 import groups
 
@@ -43,7 +44,6 @@ class Game():
         self.all = self.init_game_resources(self.resources)
 
         self.popup = None
-        self.placement_tile = None
         # pygame.display.set_icon(icon_image)
 
     def init_screen(self):
@@ -57,7 +57,6 @@ class Game():
 
     def init_background(self, screen):
         background = pygame.Surface(screen.get_size()).convert()
-        background.fill((0,0,0))
         screen.blit(background, (0, 0))
         pygame.display.flip()
 
@@ -82,11 +81,9 @@ class Game():
         for y, row in enumerate(level['tiles']):
             for x, tile in enumerate(row):
                 if tile is not None:
-                    Tile(TILE_TYPE(tile), Tile.create_position(x, y, 0, 0), (x, y), self.tile_click)
+                    Tile(TILE_TYPE(tile), grid_ref_to_iso((x, y)), (x, y), self.tile_click)
 
         BuildMenu(self.screen.get_rect().height, on_build_option_select=self.on_build_option_select)
-
-        self.cash_balance_text = Text(f'${self.state["game"]["balance"]}', (SCREENRECT.width/2, 15), is_centered=True, font_size=32)
 
         return all
 
@@ -150,7 +147,7 @@ class Game():
 
         # if we've not clicked on anything yet then assume we want the game world not overlays
         camera_relative_mouse_position = self.state['camera'].apply_to_point(mouse_position)
-        tile_grid_ref = Tile.convert_point_to_grid_ref(camera_relative_mouse_position)
+        tile_grid_ref = iso_to_grid_ref(camera_relative_mouse_position)
         sprite = next((tile for tile in self.tiles.sprites() if tile.is_at_grid_reference(tile_grid_ref)), None)
         if sprite is not None:
             on_click = getattr(sprite, 'on_click', None)
@@ -167,19 +164,11 @@ class Game():
         self.background.fill((0,0,0))
         self.screen.blit(self.background, (0, 0))
 
-        if (self.placement_tile is not None):
-            self.placement_tile.kill()
-            self.placement_tile = None
-
         if self.state['build_mode'] is not None:
-            build_grid_ref = Tile.convert_point_to_grid_ref(self.state.get('camera').apply_to_point(self.state['system']['mouse_position']))
-
+            build_grid_ref = iso_to_grid_ref(self.state.get('camera').apply_to_point(self.state['system']['mouse_position']))
 
         for sprite in self.camera_relative:
             self.screen.blit(sprite.image, self.state.get('camera').apply(sprite))
-
-        self.cash_balance_text.kill()
-        self.cash_balance_text = Text(f'${self.state["game"]["balance"]}', (SCREENRECT.width/2, 15), is_centered=True, font_size=32)
 
         self.overlays.draw(self.screen)
 
@@ -199,7 +188,7 @@ class Game():
                 TILE_TYPE.WATER: 'Water',
                 TILE_TYPE.RESIDENTIAL: 'Residential'
             }
-            title = f'Tile Type: {titles.get(tile.type)}'
+            title = f'{titles.get(tile.type)}'
 
             create_display_popup(title, 'bar')
 

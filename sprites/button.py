@@ -1,6 +1,6 @@
 import pygame as py
 import groups
-from text import Text
+from sprites.text import Text
 
 class Button(py.sprite.Sprite):
     color = (0, 116, 217)
@@ -12,7 +12,7 @@ class Button(py.sprite.Sprite):
         self.position = position
 
         self.image = py.Surface(size)
-        self.image.fill(self.color)
+        py.draw.rect(self.image, self.color, py.Rect(0, 0, size[0], size[1]), border_radius=10)
         self.rect = self.image.get_rect(topleft=position)
         self.on_click = on_click
 
@@ -23,7 +23,7 @@ class Button(py.sprite.Sprite):
         button_is_hovered = self.rect.topleft[0] + self.rect.width > mouse[0] > self.rect.topleft[0] and self.rect.topleft[1] + self.rect.height > mouse[1] > self.rect.topleft[1]
 
         color = self.highlight_color if button_is_hovered else self.color
-        self.image.fill(color)
+        py.draw.rect(self.image, color, py.Rect(0, 0, self.rect.width, self.rect.height), border_radius=10)
 
     def kill(self):
         self.text.kill()

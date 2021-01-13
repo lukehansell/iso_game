@@ -1,6 +1,6 @@
 import pygame as py
 import groups
-from text import Text
+from sprites.text import Text
 from state.build_mode import BUILD_MODES
 
 class BuildMenu(py.sprite.Sprite):

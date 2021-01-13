@@ -3,7 +3,7 @@ import pygame
 import groups
 from state.build_mode import BUILD_MODES
 from state.events import create_purchase
-
+from lib import iso_to_grid_ref
 class TILE_TYPE(Enum):
     GRASS = 0
     WATER = 1
@@ -33,7 +33,7 @@ class TileStats():
 class Tile(pygame.sprite.Sprite):
     images = []
 
-    def __init__(self, type, position, map_position, on_click=None):
+    def __init__(self, type, position, grid_ref, on_click=None):
         pygame.sprite.Sprite.__init__(self, (groups.all, groups.tiles, groups.camera_relative, groups.layeredItems))
         self.type = type
         self.default_image = self.images[self.type.value]
@@ -41,9 +41,11 @@ class Tile(pygame.sprite.Sprite):
         self.hover_image.fill((10,10,10), rect=None, special_flags=pygame.BLEND_RGB_ADD)
         self.image = self.default_image
         self.rect = self.image.get_rect(topleft=position)
-        self.position = position
-        self.map_position = map_position
+        self.default_position = position
+        self.grid_ref = grid_ref
         self.click_handler = on_click
+
+        self.decorations = [[None] * 8] * 8
 
         self.stats = TileStats()
 
@@ -66,11 +68,22 @@ class Tile(pygame.sprite.Sprite):
         else:
             self.image = self.images[self.type.value]
 
+        # if self.type == TILE_TYPE.GRASS:
+            # self.decorations[4][4] = Tile()
+
+        # correct image scale to zoom
+        zoom = state.get('camera').zoom
+        default_width = 64
+        default_height = 132
+        ( default_x, default_y ) = self.default_position
+        self.image = pygame.transform.scale(self.image, (default_width * zoom, default_height * zoom))
+        self.rect = self.image.get_rect(topleft=(default_x * zoom, default_y * zoom ))
+
     def check_hover(self, point):
-        return Tile.convert_point_to_grid_ref(point) == self.map_position
+        return iso_to_grid_ref(point) == self.grid_ref
 
     def is_at_grid_reference(self, grid_reference):
-        return grid_reference == self.map_position
+        return grid_reference == self.grid_ref
 
     def set_tile_type(self, type):
         if self.type is not TILE_TYPE.WATER and self.type is not TILE_TYPE.RESIDENTIAL:
@@ -82,15 +95,3 @@ class Tile(pygame.sprite.Sprite):
         settings = game_logic[self.type]
         if settings['is_populated']:
             self.stats.population += 10 # TODO make this smarter
-
-    @classmethod
-    def create_position(cls, x, y, x_offset, y_offset):
-        return (x_offset + (x * 31) - (y * 31), y_offset + x * 18 + y * 18 - 64)
-
-    @classmethod
-    def convert_point_to_grid_ref(cls, point):
-        (x, y) = point
-
-        grid_x = ((18*x)+(31*y))/1116
-        grid_y = (y - (18*grid_x))/18
-        return (round(grid_x)-1, round(grid_y))

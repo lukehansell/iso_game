@@ -1,4 +1,4 @@
-from tile import TILE_TYPE
+from sprites.tile import TILE_TYPE
 
 level = {
   "tiles": [

@@ -6,6 +6,7 @@ class Camera:
         self.height = height
         self.dx = 0
         self.dy = 0
+        self.zoom = 1
 
     def apply(self, entity):
         return entity.rect.move(self.camera.topleft)
@@ -13,7 +14,7 @@ class Camera:
     def apply_to_point(self, point):
         (camera_x, camera_y) = self.camera.topleft
         (point_x, point_y) = point
-        return (point_x - camera_x, point_y - camera_y)
+        return (point_x/self.zoom - camera_x/self.zoom, point_y/self.zoom - camera_y/self.zoom)
 
     def update(self):
         (x, y) = self.camera.topleft

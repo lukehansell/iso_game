@@ -1,19 +1,20 @@
 import pygame as py
 import groups
 
-from text import Text
-from button import Button
+from sprites.text import Text
+from sprites.button import Button
+
 class Popup(py.sprite.Sprite):
     def __init__(self, content, title=None, position = (100, 100), on_close=None, layer=60):
         py.sprite.Sprite.__init__(self, (groups.all, groups.layeredItems, groups.overlays))
         popup_width = 300
         popup_height = 400
-        popup_padding = 5
+        popup_padding = 10
 
         popup_background = (100, 100, 100)
 
         surface = py.Surface((popup_width, popup_height))
-        surface.fill(popup_background)
+        py.draw.rect(surface, popup_background, py.Rect(0, 0, popup_width, popup_height), border_radius=10)
 
         button_height = 25
         button_width = 25
