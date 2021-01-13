@@ -1,7 +1,7 @@
 import os
 import pygame
 
-from .sprites.tile import Tile, TILE_TYPE
+from .sprites.tile import Tile, TileType
 from .sprites.popup import Popup
 from .sprites.build_menu import BuildMenu
 
@@ -83,7 +83,7 @@ class Game():
         for y, row in enumerate(level['tiles']):
             for x, tile in enumerate(row):
                 if tile is not None:
-                    Tile(TILE_TYPE(tile), grid_ref_to_iso((x, y),x_offset=-32, y_offset=-79), (x, y), self.tile_click)
+                    Tile(TileType(tile), grid_ref_to_iso((x, y),x_offset=-32, y_offset=-79), (x, y), self.tile_click)
 
         BuildMenu(self.screen.get_rect().height, on_build_option_select=self.on_build_option_select)
 
@@ -178,14 +178,14 @@ class Game():
     def tile_click(self, tile):
         if self.state['build_mode'] is not None:
             if self.state['build_mode'] == BUILD_MODES.RESIDENTIAL:
-                tile.set_tile_type(TILE_TYPE.RESIDENTIAL)
+                tile.set_tile_type(TileType.RESIDENTIAL)
 
         else:
             titles = {
-                TILE_TYPE.GRASS: 'Grass',
-                TILE_TYPE.SAND: 'Sand',
-                TILE_TYPE.WATER: 'Water',
-                TILE_TYPE.RESIDENTIAL: 'Residential'
+                TileType.GRASS: 'Grass',
+                TileType.SAND: 'Sand',
+                TileType.WATER: 'Water',
+                TileType.RESIDENTIAL: 'Residential'
             }
             title = f'{titles.get(tile.type)}'
 

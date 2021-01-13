@@ -5,7 +5,7 @@ from src.state.build_mode import BUILD_MODES
 from src.state.events import create_purchase
 from src.lib import iso_to_grid_ref
 
-class TILE_TYPE(Enum):
+class TileType(Enum):
     GRASS = 0
     WATER = 1
     SAND = 2
@@ -20,10 +20,10 @@ def create_tile_opts(is_populated=False, environment_impact=0, happiness_impact=
     }
 
 game_logic = {
-    TILE_TYPE.GRASS: create_tile_opts(environment_impact=10, happiness_impact=1),
-    TILE_TYPE.WATER: create_tile_opts(environment_impact=10, happiness_impact=1),
-    TILE_TYPE.SAND: create_tile_opts(environment_impact=1, happiness_impact=1),
-    TILE_TYPE.RESIDENTIAL: create_tile_opts(is_populated=True, cost=50000)
+    TileType.GRASS: create_tile_opts(environment_impact=10, happiness_impact=1),
+    TileType.WATER: create_tile_opts(environment_impact=10, happiness_impact=1),
+    TileType.SAND: create_tile_opts(environment_impact=1, happiness_impact=1),
+    TileType.RESIDENTIAL: create_tile_opts(is_populated=True, cost=50000)
 }
 
 class TileStats():
@@ -59,10 +59,10 @@ class Tile(pygame.sprite.Sprite):
         if self.check_hover(state.get('camera').apply_to_point(state['system']['mouse_position'])):
             if state['build_mode'] is not None:
                 if state['build_mode'] == BUILD_MODES.RESIDENTIAL:
-                    self.image = self.images[TILE_TYPE.RESIDENTIAL.value].copy()
+                    self.image = self.images[TileType.RESIDENTIAL.value].copy()
                 self.image.set_alpha(200)
 
-                if self.type == TILE_TYPE.WATER or self.type == TILE_TYPE.RESIDENTIAL:
+                if self.type == TileType.WATER or self.type == TileType.RESIDENTIAL:
                     self.image.fill((255, 0, 0), rect=None, special_flags=pygame.BLEND_RGB_MULT)
             else:
                 self.image = self.images[self.type.value].copy()
@@ -85,7 +85,7 @@ class Tile(pygame.sprite.Sprite):
         return grid_reference == self.grid_ref
 
     def set_tile_type(self, new_type):
-        if self.type is not TILE_TYPE.WATER and self.type is not TILE_TYPE.RESIDENTIAL:
+        if self.type is not TileType.WATER and self.type is not TileType.RESIDENTIAL:
             self.type = new_type
             create_purchase(game_logic[new_type]['cost'])
 
