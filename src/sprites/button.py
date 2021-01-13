@@ -1,6 +1,6 @@
 import pygame as py
-import groups
-from sprites.text import Text
+import src.groups as groups
+from .text import Text
 
 class Button(py.sprite.Sprite):
     color = (0, 116, 217)
@@ -18,7 +18,7 @@ class Button(py.sprite.Sprite):
 
         self.text = Text(text, self.rect.center, self.on_click, is_centered=True, layer=self._layer+1)
 
-    def update(self, state):
+    def update(self, _state):
         mouse = py.mouse.get_pos()
         button_is_hovered = self.rect.topleft[0] + self.rect.width > mouse[0] > self.rect.topleft[0] and self.rect.topleft[1] + self.rect.height > mouse[1] > self.rect.topleft[1]
 

@@ -1,7 +1,7 @@
 import pygame as py
-import groups
-from sprites.text import Text
-from state.build_mode import BUILD_MODES
+import src.groups as groups
+from .text import Text
+from ..state.build_mode import BUILD_MODES
 
 class BuildMenu(py.sprite.Sprite):
     width = 300

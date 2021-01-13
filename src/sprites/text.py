@@ -1,5 +1,5 @@
 import pygame as py
-import groups
+import src.groups as groups
 
 class Text(py.sprite.Sprite):
     def __init__(self, text, position=(0, 0), on_click=None, font_size=20, is_centered=False, layer=0, color=(255,255,255)):

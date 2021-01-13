@@ -1,11 +1,11 @@
 import pygame as py
-import groups
+import src.groups as groups
 
-from sprites.text import Text
-from sprites.button import Button
+from .text import Text
+from .button import Button
 
 class Popup(py.sprite.Sprite):
-    def __init__(self, content, title=None, position = (100, 100), on_close=None, layer=60):
+    def __init__(self, content = py.Surface((0 ,0)), title=None, position = (100, 100), on_close=None, layer=60):
         py.sprite.Sprite.__init__(self, (groups.all, groups.layeredItems, groups.overlays))
         popup_width = 300
         popup_height = 400
@@ -38,6 +38,7 @@ class Popup(py.sprite.Sprite):
 
         self.close_button = Button('X', button_position, button_size, on_close, layer=self._layer+1)
 
+        surface.blit(content, (popup_padding, popup_padding + 30))
         self.image = surface
         self.rect = surface.get_rect(topleft=position)
 

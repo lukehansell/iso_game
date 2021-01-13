@@ -1,9 +1,10 @@
 from enum import Enum
 import pygame
-import groups
-from state.build_mode import BUILD_MODES
-from state.events import create_purchase
-from lib import iso_to_grid_ref
+import src.groups as groups
+from src.state.build_mode import BUILD_MODES
+from src.state.events import create_purchase
+from src.lib import iso_to_grid_ref
+
 class TILE_TYPE(Enum):
     GRASS = 0
     WATER = 1
@@ -30,12 +31,13 @@ class TileStats():
         self.population = 0
         self.environmental_rating = 0
         self.happiness_rating = 0
+
 class Tile(pygame.sprite.Sprite):
     images = []
 
-    def __init__(self, type, position, grid_ref, on_click=None):
+    def __init__(self, tile_type, position, grid_ref, on_click=None):
         pygame.sprite.Sprite.__init__(self, (groups.all, groups.tiles, groups.camera_relative, groups.layeredItems))
-        self.type = type
+        self.type = tile_type
         self.default_image = self.images[self.type.value]
         self.hover_image = self.images[self.type.value].copy()
         self.hover_image.fill((10,10,10), rect=None, special_flags=pygame.BLEND_RGB_ADD)
@@ -68,9 +70,6 @@ class Tile(pygame.sprite.Sprite):
         else:
             self.image = self.images[self.type.value]
 
-        # if self.type == TILE_TYPE.GRASS:
-            # self.decorations[4][4] = Tile()
-
         # correct image scale to zoom
         zoom = state.get('camera').zoom
         default_width = 64
@@ -85,11 +84,10 @@ class Tile(pygame.sprite.Sprite):
     def is_at_grid_reference(self, grid_reference):
         return grid_reference == self.grid_ref
 
-    def set_tile_type(self, type):
+    def set_tile_type(self, new_type):
         if self.type is not TILE_TYPE.WATER and self.type is not TILE_TYPE.RESIDENTIAL:
-            self.type = type
-            create_purchase(game_logic[type]['cost'])
-
+            self.type = new_type
+            create_purchase(game_logic[new_type]['cost'])
 
     def game_tick(self):
         settings = game_logic[self.type]

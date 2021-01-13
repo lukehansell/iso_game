@@ -1,5 +1,5 @@
 import pygame as py
-from camera import Camera
+
 CAMERA_SPEED = 5
 
 def reducer(state, action):
