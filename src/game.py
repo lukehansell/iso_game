@@ -14,6 +14,7 @@ from data.level import level
 from .sprites.tile import Tile, TileType
 from .sprites.popup import Popup
 from .sprites.build_menu import BuildMenu
+from .sprites.game_info_box import GameInfoBox
 
 from .state.build_mode import BUILD_MODES
 
@@ -73,6 +74,7 @@ def _init_game_resources(screen_size, on_tile_click):
                 )
 
     BuildMenu(screen_size.height, on_build_option_select=_on_build_option_select)
+    GameInfoBox((screen_size.width/2, 0))
 
 def _load_resources():
     return {
