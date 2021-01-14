@@ -1,3 +1,10 @@
+'''Entry point for running a game
+
+This class holds most of the logic regarding how a game runs.
+It controls the game loop, event handling, state management
+and rendering.
+'''
+
 import os
 import pygame
 
