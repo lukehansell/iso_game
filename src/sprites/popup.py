@@ -1,5 +1,6 @@
 import pygame as py
 import src.groups as groups
+import src.style as style
 
 from .text import Text
 from .button import Button
@@ -11,10 +12,10 @@ class Popup(py.sprite.Sprite):
         popup_height = 400
         popup_padding = 10
 
-        popup_background = (100, 100, 100)
+        popup_background = style.dark_accent
 
-        surface = py.Surface((popup_width, popup_height))
-        py.draw.rect(surface, popup_background, py.Rect(0, 0, popup_width, popup_height), border_radius=10)
+        surface = py.Surface((popup_width, popup_height), py.SRCALPHA)
+        py.draw.rect(surface, popup_background, py.Rect(0, 0, popup_width, popup_height), border_radius=style.border_radius)
 
         button_height = 25
         button_width = 25
@@ -34,7 +35,7 @@ class Popup(py.sprite.Sprite):
                 position[1] + popup_padding
             )
 
-            self.title = Text(title, title_position, font_size=32, layer=self._layer + 1)
+            self.title = Text(title, title_position, font_size=32, layer=self._layer + 1, color=style.white)
 
         self.close_button = Button('X', button_position, button_size, on_close, layer=self._layer+1)
 

@@ -1,6 +1,11 @@
 import pygame as py
+from functools import reduce
+
 import src.groups as groups
+import src.style as style
+
 from .text import Text
+from .hoverable_sprite import HoverableSprite
 from ..state.build_mode import BUILD_MODES
 
 class BuildMenu(py.sprite.Sprite):
@@ -8,67 +13,121 @@ class BuildMenu(py.sprite.Sprite):
     height = 400
     padding = 5
 
-    background = (255, 255, 255)
+    background = style.primary_color
 
     def __init__(self, height, width=60, position = (0, 0), on_build_option_select=None, layer=30):
         py.sprite.Sprite.__init__(self, (groups.all, groups.layeredItems, groups.overlays))
 
+        (container_x, container_y) = position
+        title_x = container_x + style.padding
+        title_y = container_y + style.padding
         self._layer = layer
-
-        surface = py.Surface((width, height))
-        surface.fill(self.background)
-        surface.set_alpha(100)
-
-        self.image = surface
-        self.rect = surface.get_rect(topleft=position)
-
-        self.build_menu_items = {
-            "Residential": BuildMenuItem(
-                'R',
-                (74,134,232),
-                ( self.rect.left + self.padding, self.rect.top + self.padding ),
-                False,
-                BUILD_MODES.RESIDENTIAL,
-                on_click=on_build_option_select,
-                layer=self._layer + 1
-            )
+        self.title = Text(
+            'Build Modes:',
+            (title_x, title_y)
+        )
+        build_mode_items = {
+            'Residential': BUILD_MODES.RESIDENTIAL,
+            'Commercial': BUILD_MODES.COMMERCIAL
         }
 
-    def update(self, state):
-        for key in self.build_menu_items:
-            is_active = True if state['build_mode'] == self.build_menu_items[key].build_mode else False
-            self.build_menu_items[key].set_active(is_active)
+        self.menu = Menu(
+            build_mode_items,
+            on_build_option_select,
+            (container_x + style.padding, self.title.rect.bottom + style.padding))
 
+        height = self.title.rect.height + self.menu.rect.height + self.padding*2
+
+        self.image = py.Surface((width, height), py.SRCALPHA)
+        self.image.fill(self.background)
+        self.rect = self.image.get_rect(topleft=position)
+
+    def update(self, state):
+        for option in self.menu.menu_items:
+            is_active = True if state['build_mode'] == option.value else False
+            option.set_active(is_active)
 
     def kill(self):
         py.sprite.Sprite.kill(self)
 
-class BuildMenuItem(py.sprite.Sprite):
-    def __init__(self, text, color, position, is_active, build_mode, on_click=None, layer=31):
-        py.sprite.Sprite.__init__(self, (groups.all, groups.layeredItems, groups.overlays))
-
-        width = 50
-        height = 50
-
-        background_color = (255, 220, 0) if is_active else (255,255,255)
-
-        self.build_mode = build_mode
-        self.is_active = is_active
+class MenuItem(HoverableSprite):
+    def __init__(self, text, value, on_click, position=(0, 0), layer=1, is_active=False):
+        HoverableSprite.__init__(self, (groups.all, groups.layeredItems, groups.overlays))
         self._layer = layer
-        surface = py.Surface((width, height))
-        self.border = py.draw.rect(surface, color, py.Rect(0, 0, 50, 50), border_radius=10)
-        self.background = py.draw.rect(surface, background_color, py.Rect(5, 5, 40, 40), border_radius=10)
-
         self.handle_click = on_click
-        self.text = Text(text, (25, 25), color=color, on_click=self.on_click)
-        self.image = surface
-        self.rect = surface.get_rect(topleft=position)
+        self.value = value
+        self.is_active = is_active
+
+        self.is_hovered = False
+        self.is_active = False
+
+        (text_x, text_y) = position
+        self.text = Text(
+            text,
+            (
+                text_x + style.padding,
+                text_y + style.padding
+            ),
+            color=style.menu_item_text,
+            on_click=self.on_click
+        )
+        (text_width, text_height) = self.text.image.get_size()
+        width = text_width + style.padding*2
+        height = text_height + style.padding*2
+
+        self.image = py.Surface((width, height), py.SRCALPHA)
+        self.image.fill(style.white)
+        self.rect = self.image.get_rect(topleft=position)
+
+    def on_hover(self, is_hovered):
+        self.is_hovered = is_hovered
+        if is_hovered:
+            self.image.fill(style.menu_item_hovered)
+        else:
+            if not self.is_active:
+                self.image.fill(style.menu_item)
 
     def on_click(self):
-        if self.handle_click is not None:
-            self.handle_click(self.build_mode)
+        self.handle_click(self.value)
 
     def set_active(self, is_active):
         self.is_active = is_active
-        color = (255, 220, 0) if is_active else (255,255,255)
-        py.draw.rect(self.image, color, py.Rect(5, 5, 40, 40), border_radius=10)
+        if is_active:
+            self.image.fill(style.menu_item_hovered)
+        else:
+            self.image.fill(style.menu_item)
+
+
+
+class Menu(py.sprite.Sprite):
+    def __init__(self, options, on_item_click, position=(0, 0), layer=1):
+        py.sprite.Sprite.__init__(self, (groups.all, groups.layeredItems, groups.overlays))
+        self._layer=layer
+
+        (container_x, container_y) = position
+
+        self.menu_items = []
+
+        x = container_x
+        y = container_y
+        for text, value in options.items():
+            new_item = MenuItem(
+                text,
+                value,
+                on_click=on_item_click,
+                position=(x, y),
+                layer=self._layer + 1
+            )
+            self.menu_items.append(new_item)
+            x += new_item.rect.right
+
+        width = reduce(lambda acc, option: acc + option.rect.width, self.menu_items, 0)
+        height = reduce(lambda acc, option: acc if acc > option.rect.height else option.rect.height, self.menu_items, 0)
+
+        self.image = py.Surface((width, height), py.SRCALPHA)
+        self.rect = self.image.get_rect()
+
+    def set_active_item(self, value):
+        for option in self.menu_items:
+            is_active = True if value == option.value else False
+            option.set_active(is_active)

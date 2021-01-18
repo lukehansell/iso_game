@@ -3,6 +3,7 @@ from .events import TOGGLE_BUILD_MODE
 
 class BUILD_MODES(Enum):
     RESIDENTIAL = 0
+    COMMERCIAL = 1
 
 def reducer(state, action):
     if action.type == TOGGLE_BUILD_MODE:

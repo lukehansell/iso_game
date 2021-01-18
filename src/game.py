@@ -9,6 +9,8 @@ import os
 import pygame
 
 import src.groups as groups
+import src.style as style
+
 from data.level import level
 
 from .sprites.tile import Tile, TileType
@@ -73,8 +75,8 @@ def _init_game_resources(screen_size, on_tile_click):
                     on_tile_click
                 )
 
-    BuildMenu(screen_size.height, on_build_option_select=_on_build_option_select)
-    GameInfoBox((screen_size.width/2, 0))
+    build_menu = BuildMenu(50+style.padding*2, width=screen_size.width, on_build_option_select=_on_build_option_select)
+    GameInfoBox((screen_size.width/2, build_menu.rect.bottom))
 
 def _load_resources():
     return {
@@ -175,7 +177,7 @@ class Game():
 
         groups.all.clear(self.__screen, self.__background)
 
-        self.__background.fill((0,0,0))
+        self.__background.fill(style.black)
         self.__screen.blit(self.__background, (0, 0))
 
         for sprite in groups.camera_relative:
