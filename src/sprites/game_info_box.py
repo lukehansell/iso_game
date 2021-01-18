@@ -4,6 +4,7 @@ from src.groups import overlays, layeredItems, all as all_sprites
 import src.style as style
 from src.text.paragraph import P
 from src.text.render import render
+from src.lib.dates import int_to_short_month_name
 from .text import Text
 from functools import reduce
 
@@ -39,7 +40,7 @@ class GameInfoBox(py.sprite.Sprite):
     def create_children(self, state = None):
         cash = '-' if not state else state['game']['balance']
         population = '-' if not state else state['game']['population']
-        month = '-' if not state else state['game']['date']['month']
+        month = '-' if not state else int_to_short_month_name(state['game']['date']['month'])
         year = '-' if not state else state['game']['date']['year']
 
         return [
@@ -52,7 +53,7 @@ class GameInfoBox(py.sprite.Sprite):
                 16
             ),
             P(
-                f'{month}/{year}',
+                f'{month} / {year}',
                 16
             )
         ]
