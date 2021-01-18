@@ -30,7 +30,7 @@ from .state.events import (
     create_game_tick
 )
 
-from .lib import grid_ref_to_iso, iso_to_grid_ref
+from .lib.projection import grid_ref_to_iso, iso_to_grid_ref
 
 CAMERA_SPEED = 5
 HEIGHT = 600

@@ -3,7 +3,7 @@ import pygame
 import src.groups as groups
 from src.state.build_mode import BUILD_MODES
 from src.state.events import create_purchase
-from src.lib import iso_to_grid_ref
+from src.lib.projection import iso_to_grid_ref
 
 class TileType(Enum):
     GRASS = 0
