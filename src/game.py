@@ -76,7 +76,7 @@ def _init_game_resources(screen_size, on_tile_click):
                 )
 
     build_menu = BuildMenu(50+style.padding*2, width=screen_size.width, on_build_option_select=_on_build_option_select)
-    GameInfoBox((screen_size.width/2, build_menu.rect.bottom))
+    GameInfoBox((screen_size.width/2, build_menu.rect.bottom), layer=1)
 
 def _load_resources():
     return {
