@@ -1,9 +1,11 @@
 from enum import Enum
+import random
 import pygame
 import src.groups as groups
 from src.state.build_mode import BUILD_MODES
 from src.state.events import create_purchase
 from src.lib.projection import iso_to_grid_ref
+from src.sprites.decoration import DECORATIONS, Decoration
 
 class TileType(Enum):
     GRASS = 0
@@ -47,7 +49,14 @@ class Tile(pygame.sprite.Sprite):
         self.grid_ref = grid_ref
         self.click_handler = on_click
 
-        self.decorations = [[None] * 8] * 8
+        tree_probability = [10, 90]
+        self.decorations = [[
+            random.choices([Decoration(DECORATIONS.TREE, position, 16, 8), None], tree_probability, k=1)[0] if self.type == TileType.GRASS else None,
+            random.choices([Decoration(DECORATIONS.TREE, position, 0, 16), None], tree_probability, k=1)[0] if self.type == TileType.GRASS else None,
+        ], [
+            random.choices([Decoration(DECORATIONS.TREE, position, 32, 16), None], tree_probability, k=1)[0] if self.type == TileType.GRASS else None,
+            random.choices([Decoration(DECORATIONS.TREE, position, 16, 24), None], tree_probability, k=1)[0] if self.type == TileType.GRASS else None,
+        ]]
 
         self.stats = TileStats()
 
@@ -93,3 +102,6 @@ class Tile(pygame.sprite.Sprite):
         settings = game_logic[self.type]
         if settings['is_populated']:
             self.stats.population += 10 # TODO make this smarter
+
+    def clear_decorations(self):
+        self.decorations = [[None] * 2] * 2

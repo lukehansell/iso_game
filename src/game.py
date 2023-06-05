@@ -14,6 +14,7 @@ import src.style as style
 from data.level import level
 
 from .sprites.tile import Tile, TileType
+from .sprites.decoration import Decoration, DECORATIONS
 from .sprites.popup import Popup
 from .sprites.build_menu import BuildMenu
 from .sprites.game_info_box import GameInfoBox
@@ -62,7 +63,12 @@ def _init_game_resources(screen_size, on_tile_click):
         resources["images"]["grass"],
         resources["images"]["water"],
         resources["images"]["sand"],
-        resources["images"]['residential']
+        resources["images"]['residential'],
+        resources["images"]["tree"]
+    ]
+
+    Decoration.images = [
+        resources["images"]["tree"]
     ]
 
     for y, row in enumerate(level['tiles']):
@@ -84,7 +90,8 @@ def _load_resources():
             "grass": load_image('grass.png').convert_alpha(),
             "water": load_image('water.png').convert_alpha(),
             "sand": load_image('sand.png').convert_alpha(),
-            "residential": load_image('residential.png').convert_alpha()
+            "residential": load_image('residential.png').convert_alpha(),
+            "tree": load_image('tree.png').convert_alpha()
         }
     }
 
@@ -182,6 +189,10 @@ class Game():
 
         for sprite in groups.camera_relative:
             self.__screen.blit(sprite.image, self.__state.get('camera').apply(sprite))
+            for decoration_row in sprite.decorations:
+                for decoration in decoration_row:
+                    if decoration is not None:
+                        self.__screen.blit(decoration.image, self.__state.get('camera').apply(decoration))
 
         groups.overlays.draw(self.__screen)
 
@@ -219,6 +230,7 @@ class Game():
         if self.__state['build_mode'] is not None:
             if self.__state['build_mode'] == BUILD_MODES.RESIDENTIAL:
                 tile.set_tile_type(TileType.RESIDENTIAL)
+                tile.clear_decorations()
 
         else:
             titles = {
