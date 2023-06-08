@@ -28,7 +28,8 @@ class BuildMenu(py.sprite.Sprite):
         )
         build_mode_items = {
             'Residential': BUILD_MODES.RESIDENTIAL,
-            'Commercial': BUILD_MODES.COMMERCIAL
+            'Commercial': BUILD_MODES.COMMERCIAL,
+            'Industrial': BUILD_MODES.INDUSTRIAL,
         }
 
         self.menu = Menu(
@@ -119,7 +120,7 @@ class Menu(py.sprite.Sprite):
                 layer=self._layer + 1
             )
             self.menu_items.append(new_item)
-            x += new_item.rect.right
+            x = new_item.rect.right + style.padding
 
         width = reduce(lambda acc, option: acc + option.rect.width, self.menu_items, 0)
         height = reduce(lambda acc, option: acc if acc > option.rect.height else option.rect.height, self.menu_items, 0)

@@ -12,6 +12,8 @@ class TileType(Enum):
     WATER = 1
     SAND = 2
     RESIDENTIAL = 3
+    COMMERCIAL = 4
+    INDUSTRIAL = 5
 
 def create_tile_opts(is_populated=False, environment_impact=0, happiness_impact=0, cost=0):
     return {
@@ -25,7 +27,9 @@ game_logic = {
     TileType.GRASS: create_tile_opts(environment_impact=10, happiness_impact=1),
     TileType.WATER: create_tile_opts(environment_impact=10, happiness_impact=1),
     TileType.SAND: create_tile_opts(environment_impact=1, happiness_impact=1),
-    TileType.RESIDENTIAL: create_tile_opts(is_populated=True, cost=50000)
+    TileType.RESIDENTIAL: create_tile_opts(is_populated=True, cost=50000),
+    TileType.COMMERCIAL: create_tile_opts(environment_impact=-10, happiness_impact=10, cost=100000),
+    TileType.INDUSTRIAL: create_tile_opts(environment_impact=-100, happiness_impact=-10, cost=200000)
 }
 
 class TileStats():
@@ -69,9 +73,21 @@ class Tile(pygame.sprite.Sprite):
             if state['build_mode'] is not None:
                 if state['build_mode'] == BUILD_MODES.RESIDENTIAL:
                     self.image = self.images[TileType.RESIDENTIAL.value].copy()
+
+                if state['build_mode'] == BUILD_MODES.COMMERCIAL:
+                    self.image = self.images[TileType.COMMERCIAL.value].copy()
+                
+                if state['build_mode'] == BUILD_MODES.INDUSTRIAL:
+                    self.image = self.images[TileType.INDUSTRIAL.value].copy()
+                    
                 self.image.set_alpha(200)
 
-                if self.type == TileType.WATER or self.type == TileType.RESIDENTIAL:
+                if (
+                    self.type == TileType.WATER
+                    or self.type == TileType.RESIDENTIAL
+                    or self.type == TileType.COMMERCIAL
+                    or self.type == TileType.INDUSTRIAL
+                ):
                     self.image.fill((255, 0, 0), rect=None, special_flags=pygame.BLEND_RGB_MULT)
             else:
                 self.image = self.images[self.type.value].copy()
@@ -94,7 +110,12 @@ class Tile(pygame.sprite.Sprite):
         return grid_reference == self.grid_ref
 
     def set_tile_type(self, new_type):
-        if self.type is not TileType.WATER and self.type is not TileType.RESIDENTIAL:
+        if (
+            self.type is not TileType.WATER 
+            and self.type is not TileType.RESIDENTIAL
+            and self.type is not TileType.COMMERCIAL
+            and self.type is not TileType.INDUSTRIAL
+        ):
             self.type = new_type
             create_purchase(game_logic[new_type]['cost'])
 

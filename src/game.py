@@ -64,7 +64,8 @@ def _init_game_resources(screen_size, on_tile_click):
         resources["images"]["water"],
         resources["images"]["sand"],
         resources["images"]['residential'],
-        resources["images"]["tree"]
+        resources["images"]["commercial"],
+        resources["images"]["industrial"],
     ]
 
     Decoration.images = [
@@ -91,6 +92,8 @@ def _load_resources():
             "water": load_image('water.png').convert_alpha(),
             "sand": load_image('sand.png').convert_alpha(),
             "residential": load_image('residential.png').convert_alpha(),
+            "commercial": load_image('commercial.png').convert_alpha(),
+            "industrial": load_image('industrial.png').convert_alpha(),
             "tree": load_image('tree.png').convert_alpha()
         }
     }
@@ -230,14 +233,23 @@ class Game():
         if self.__state['build_mode'] is not None:
             if self.__state['build_mode'] == BUILD_MODES.RESIDENTIAL:
                 tile.set_tile_type(TileType.RESIDENTIAL)
-                tile.clear_decorations()
+            
+            if self.__state['build_mode'] == BUILD_MODES.COMMERCIAL:
+                tile.set_tile_type(TileType.COMMERCIAL)
+
+            if self.__state['build_mode'] == BUILD_MODES.INDUSTRIAL:
+                tile.set_tile_type(TileType.INDUSTRIAL)
+
+            tile.clear_decorations()
 
         else:
             titles = {
                 TileType.GRASS: 'Grass',
                 TileType.SAND: 'Sand',
                 TileType.WATER: 'Water',
-                TileType.RESIDENTIAL: 'Residential'
+                TileType.RESIDENTIAL: 'Residential',
+                TileType.COMMERCIAL: 'Commercial',
+                TileType.INDUSTRIAL: 'Industrial'
             }
             title = f'{titles.get(tile.type)}'
 
